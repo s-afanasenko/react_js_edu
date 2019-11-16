@@ -1,9 +1,10 @@
 import React from 'react';
-import { withTheme } from './theme-context';
+import { connect } from 'react-redux';
 
 class JSONRenderer extends React.Component {
 	render () {
 		let JSONString;
+		const { theme } = this.props;
 
 		switch (typeof this.props.JSONString) {
 			case 'string':
@@ -16,7 +17,7 @@ class JSONRenderer extends React.Component {
 		}
 
 		return (
-			<pre className={`card bg-${this.props.theme}`}>
+			<pre className={`card bg-${theme}`}>
 				<div className="card-body">
 					{ JSONString }
 				</div>
@@ -25,12 +26,14 @@ class JSONRenderer extends React.Component {
 	}
 }
 
-JSONRenderer.defaultProps = {
-	theme: 'light'
+function mapStateToProps(state) {
+	return {
+		theme: state.theme.theme
+	}
 }
 
-const WithThemeJSONRenderer = withTheme(JSONRenderer);
+const ConnectedJSONRenderer = connect(mapStateToProps)(JSONRenderer);
 
-export { WithThemeJSONRenderer as JSONRenderer };
+export { ConnectedJSONRenderer as JSONRenderer };
 
 export default JSONRenderer;

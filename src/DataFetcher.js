@@ -1,5 +1,6 @@
-import React, { Suspense, useState, useEffect, useRef } from 'react';
-import PokemonService from './service-pokemon';
+import React, { Suspense, useState, useRef, useCallback, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { executeRequest, cancelRequest } from './store/actions/';
 import Button from './Button';
 import Alert from './Alert';
 import ActionsToolbar from './ActionsToolbar';
@@ -10,61 +11,25 @@ const JSONRendererPortal = React.lazy(() => import('./JSONRendererPortal'));
 
 function DataFetcher () {
 	const cancelButton = useRef(null);
-
-	const [ isLoading, setIsLoading ] = useState(false);
-	const [ _pokemonName, _setPokemonName ] = useState('ditto');
-	const [ pokemonName, setPokemonName ] = useState(_pokemonName);
-	const [ item, setItem ] = useState(null);
-	const [ message, setMessage ] = useState(null);
-
-	const executeRequest = () => {
-		if(isLoading) return;
-
-		setIsLoading(true);
-
-		PokemonService.getPokemonByName(pokemonName)
-		.then(result => {
-			setIsLoading(false);
-
-			setItem({
-				name: result.data.name,
-				img: result.data.sprites.front_default
-			});
-
-			setMessage({
-				type: 'success',
-				text: 'Got one. 806 to go.'
-			});
-		})
-		.catch(error => {
-			setIsLoading(false);
-			setItem(null);
-			setMessage({
-				type: 'danger',
-				text: error.message || error
-			});
-		});
-	}
-
-	const cancelRequest = () => {
-		PokemonService.cancelRequest();
-	}
+	const [ pokemonName, setPokemonName ] = useState();
+	const dispatch = useDispatch();
+	const item = useSelector(state => state.data.item);
+	const message = useSelector(state => state.data.message);
+	const isLoading = useSelector(state => state.data.isLoading);
 
 	const handleChange = (e) => {
-		_setPokemonName(e.target.value.toLowerCase());
+		setPokemonName(e.target.value.toLowerCase());
 	}
 
-	const hadleSubmit = () => {
-		setPokemonName(_pokemonName);
-	}
+	const hadleSubmit = useCallback(
+		() => dispatch(executeRequest(pokemonName)),
+		[ dispatch, pokemonName ]
+	)
 
-	useEffect(() => {
-		executeRequest();
-
-		return () => {
-			cancelRequest();
-		}
-	}, [ pokemonName ]);
+	const cancelHandler = useCallback(
+		() => dispatch(cancelRequest()),
+		[ dispatch ]
+	)
 
 	useEffect(() => {
 		if(isLoading) cancelButton.current.focus();
@@ -103,7 +68,7 @@ function DataFetcher () {
 				<Button 
 					disabled={!isLoading} 
 					variant='danger'
-					clickHundler={cancelRequest} 
+					clickHundler={cancelHandler} 
 					ref={cancelButton}>Cacel</Button>
 			</ActionsToolbar>
 

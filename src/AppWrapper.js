@@ -1,42 +1,28 @@
-import React, { useState } from 'react';
-import Theme from './theme-context';
-import Button from './Button';
-import ActionsToolbar from './ActionsToolbar';
+import React from 'react';
+import { Provider } from 'react-redux'
+import store from './store/';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
-const themes = [ 'light', 'primary', 'secondary' ];
+class AppWrapper extends React.Component {
+	render () {
+		return (
+			<Provider store={store}>
+				<div className="app-wrapper">
+					<div className="container my-4">
+						<div className="row justify-content-center">
+							<div className="col-6">
+								{this.props.children}
 
-function AppWrapper(props) {
-	const [ theme, setTheme ] = useState('light');
+								<div id="JSON-renderer-portal"></div>
 
-	const handlClick = (value) => {
-		setTheme(value);
-	}
-
-	return (
-		<Theme.Provider value={theme}>
-			<div className="app-wrapper">
-				<div className="container my-4">
-					<div className="row justify-content-center">
-						<div className="col-6">
-							{props.children}
-
-							<div id="JSON-renderer-portal"></div>
-							
-							<ActionsToolbar>
-								{themes.map((_theme, index) => (
-									<Button
-										variant={_theme} 
-										key={index} 
-										disabled={_theme == theme}
-										clickHundler={() => handlClick(_theme)}>{_theme}</Button>
-								))}
-							</ActionsToolbar>
+								<ThemeSwitcher />
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</Theme.Provider>
-	);
+			</Provider>
+		);
+	}
 }
 
 export default AppWrapper;

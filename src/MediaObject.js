@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import Theme from './theme-context';
+import { useSelector } from 'react-redux';
 
 function MediaObject(props) {
-	const theme = useContext(Theme);
+	const theme = useSelector(state => state.theme.theme);
 	const { name, img, description } = props;
 
 	return (
