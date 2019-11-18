@@ -1,87 +1,86 @@
-import React from 'react';
-import PokemonService from './service-pokemon';
+import React, { Suspense, useState, useRef, useCallback, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { executeRequest, cancelRequest } from './store/actions/';
 import Button from './Button';
 import Alert from './Alert';
-import MediaObject from './MediaObject';
 import ActionsToolbar from './ActionsToolbar';
-import WrapperContainer from './WrapperContainer';
+import { JSONRenderer } from './JSONRenderer';
 
-class DataFetcher extends React.Component {
-	state = {
-		isLoading: false,
-		item: null,
-		message: null
+const MediaObject = React.lazy(() => import('./MediaObject'));
+const JSONRendererPortal = React.lazy(() => import('./JSONRendererPortal'));
+
+function DataFetcher () {
+	const cancelButton = useRef(null);
+	const [ pokemonName, setPokemonName ] = useState();
+	const dispatch = useDispatch();
+	const item = useSelector(state => state.data.item);
+	const message = useSelector(state => state.data.message);
+	const isLoading = useSelector(state => state.data.isLoading);
+
+	const handleChange = (e) => {
+		setPokemonName(e.target.value.toLowerCase());
 	}
 
-	executeRequest = () => {
-		if(this.state.isLoading) return;
+	const hadleSubmit = useCallback(
+		() => dispatch(executeRequest(pokemonName)),
+		[ dispatch, pokemonName ]
+	)
 
-		this.setState({ 
-			isLoading: true,
-			message: null
-		});
+	const cancelHandler = useCallback(
+		() => dispatch(cancelRequest()),
+		[ dispatch ]
+	)
 
-		PokemonService.getPokemonByName('ditto')
-		.then(result => {
-			this.setState({ 
-				isLoading: false,
-				item: {
-					name: result.data.name,
-					img: result.data.sprites.front_default
-				},
-				message: {
-					type: 'success',
-					text: 'Got one. 806 to go.'
-				}
-			});
-		})
-		.catch(error => {
-			this.setState({ 
-				isLoading: false,
-				item: null,
-				message: {
-					type: 'danger',
-					text: error.message || error
-				}
-			});
-		});
-	}
+	useEffect(() => {
+		if(isLoading) cancelButton.current.focus();
+	}, [ isLoading ]);
 
-	cancelRequest = () => {
-		PokemonService.cancelRequest();
-	}
+	return (
+		<>
+			<h1>Get Your First Pokemon</h1>
 
-	render() {
-		const { isLoading, message, item } = this.state;
-
-		return (
-			<WrapperContainer>
-				<h1>Get Youre First Pokemon</h1>
-
-				{message && <Alert type={message.type}>
+			{message && (
+				<Alert type={message.type}>
 					<p>{message.text}</p>
-					<Button 
-						disabled={isLoading}
-						clickHundler={this.executeRequest}>Try Again</Button>
-				</Alert>}
+				</Alert>
+			)}
 
-				{item && <MediaObject
-					name={item.name}
-					img={item.img} />}
+			{item && (
+				<Suspense fallback={<div>Loading...</div>}>
+					<MediaObject
+						name={item.name}
+						img={item.img} />
+				</Suspense>
+			)}
 
-				<ActionsToolbar>
-					<Button
-						disabled={isLoading}
-						clickHundler={this.executeRequest}>Catch</Button>
+			<ActionsToolbar>
+				<input
+					className="form-control"
+					placeholder="Get More"
+					type="text"
+					defaultValue={pokemonName}
+					onChange={handleChange} />
 
-					<Button 
-						disabled={!isLoading} 
-						variant='danger'
-						clickHundler={this.cancelRequest}>Cacel</Button>
-				</ActionsToolbar>
-			</WrapperContainer>
-		);
-	}
+				<Button
+					disabled={isLoading}
+					clickHundler={hadleSubmit}>Catch</Button>
+
+				<Button 
+					disabled={!isLoading} 
+					variant='danger'
+					clickHundler={cancelHandler} 
+					ref={cancelButton}>Cacel</Button>
+			</ActionsToolbar>
+
+			{item && (
+				<Suspense fallback={<div>Loading...</div>}>
+					<JSONRendererPortal>
+						<JSONRenderer JSONString={item} />
+					</JSONRendererPortal>
+				</Suspense>
+			)}
+		</>
+	);
 }
 
 export default DataFetcher;

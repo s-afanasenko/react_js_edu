@@ -1,25 +1,24 @@
 import React from 'react';
 
-class Button extends React.Component {
-	render() {
-		const {
-			children, 
-			clickHundler, 
-			disabled,
-			variant,
-			size
-		} = this.props;
+const Button = React.forwardRef((props, ref) => {
+	const {
+		children, 
+		clickHundler, 
+		disabled,
+		variant,
+		size
+	} = props;
 
-		return (
-			<button 
-				className={`btn btn-${variant} btn-${size}`}
-				onClick={clickHundler} 
-				disabled={disabled}>
-				{children}
-			</button>			
-		);
-	}
-}
+	return (
+		<button 
+			className={`btn btn-${variant} btn-${size}`}
+			onClick={clickHundler} 
+			disabled={disabled}
+			ref={ref}>
+			{children}
+		</button>			
+	);
+});
 
 Button.defaultProps = {
 	variant: 'primary'
