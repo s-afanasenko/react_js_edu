@@ -1,87 +1,121 @@
-import React from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import PokemonService from './service-pokemon';
 import Button from './Button';
 import Alert from './Alert';
-import MediaObject from './MediaObject';
 import ActionsToolbar from './ActionsToolbar';
-import WrapperContainer from './WrapperContainer';
+import { JSONRenderer } from './JSONRenderer';
 
-class DataFetcher extends React.Component {
-	state = {
-		isLoading: false,
-		item: null,
-		message: null
-	}
+const MediaObject = React.lazy(() => import('./MediaObject'));
+const JSONRendererPortal = React.lazy(() => import('./JSONRendererPortal'));
 
-	executeRequest = () => {
-		if(this.state.isLoading) return;
+function DataFetcher () {
+	const cancelButton = useRef(null);
 
-		this.setState({ 
-			isLoading: true,
-			message: null
-		});
+	const [ isLoading, setIsLoading ] = useState(false);
+	const [ _pokemonName, _setPokemonName ] = useState('ditto');
+	const [ pokemonName, setPokemonName ] = useState(_pokemonName);
+	const [ item, setItem ] = useState(null);
+	const [ message, setMessage ] = useState(null);
 
-		PokemonService.getPokemonByName('ditto')
+	const executeRequest = () => {
+		if(isLoading) return;
+
+		setIsLoading(true);
+
+		PokemonService.getPokemonByName(pokemonName)
 		.then(result => {
-			this.setState({ 
-				isLoading: false,
-				item: {
-					name: result.data.name,
-					img: result.data.sprites.front_default
-				},
-				message: {
-					type: 'success',
-					text: 'Got one. 806 to go.'
-				}
+			setIsLoading(false);
+
+			setItem({
+				name: result.data.name,
+				img: result.data.sprites.front_default
+			});
+
+			setMessage({
+				type: 'success',
+				text: 'Got one. 806 to go.'
 			});
 		})
 		.catch(error => {
-			this.setState({ 
-				isLoading: false,
-				item: null,
-				message: {
-					type: 'danger',
-					text: error.message || error
-				}
+			setIsLoading(false);
+			setItem(null);
+			setMessage({
+				type: 'danger',
+				text: error.message || error
 			});
 		});
 	}
 
-	cancelRequest = () => {
+	const cancelRequest = () => {
 		PokemonService.cancelRequest();
 	}
 
-	render() {
-		const { isLoading, message, item } = this.state;
-
-		return (
-			<WrapperContainer>
-				<h1>Get Youre First Pokemon</h1>
-
-				{message && <Alert type={message.type}>
-					<p>{message.text}</p>
-					<Button 
-						disabled={isLoading}
-						clickHundler={this.executeRequest}>Try Again</Button>
-				</Alert>}
-
-				{item && <MediaObject
-					name={item.name}
-					img={item.img} />}
-
-				<ActionsToolbar>
-					<Button
-						disabled={isLoading}
-						clickHundler={this.executeRequest}>Catch</Button>
-
-					<Button 
-						disabled={!isLoading} 
-						variant='danger'
-						clickHundler={this.cancelRequest}>Cacel</Button>
-				</ActionsToolbar>
-			</WrapperContainer>
-		);
+	const handleChange = (e) => {
+		_setPokemonName(e.target.value.toLowerCase());
 	}
+
+	const hadleSubmit = () => {
+		setPokemonName(_pokemonName);
+	}
+
+	useEffect(() => {
+		executeRequest();
+
+		return () => {
+			cancelRequest();
+		}
+	}, [ pokemonName ]);
+
+	useEffect(() => {
+		if(isLoading) cancelButton.current.focus();
+	}, [ isLoading ]);
+
+	return (
+		<>
+			<h1>Get Your First Pokemon</h1>
+
+			{message && (
+				<Alert type={message.type}>
+					<p>{message.text}</p>
+				</Alert>
+			)}
+
+			{item && (
+				<Suspense fallback={<div>Loading...</div>}>
+					<MediaObject
+						name={item.name}
+						img={item.img} />
+				</Suspense>
+			)}
+
+			<ActionsToolbar>
+				<input
+					className="form-control"
+					placeholder="Get More"
+					type="text"
+					defaultValue={pokemonName}
+					onChange={handleChange} />
+
+				<Button
+					disabled={isLoading}
+					clickHundler={hadleSubmit}>Catch</Button>
+
+				<Button 
+					disabled={!isLoading} 
+					variant='danger'
+					clickHundler={cancelRequest} 
+					ref={cancelButton}>Cacel</Button>
+			</ActionsToolbar>
+
+			{item && (
+				<Suspense fallback={<div>Loading...</div>}>
+					<JSONRendererPortal>
+						<JSONRenderer JSONString={item} />
+					</JSONRendererPortal>
+				</Suspense>
+			)}
+		</>
+	);
 }
 
 export default DataFetcher;
