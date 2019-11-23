@@ -21,7 +21,10 @@ const Button = React.forwardRef((props, ref) => {
 });
 
 Button.defaultProps = {
-	variant: 'primary'
+	clickHundler: () => {},
+	disabled: false,
+	variant: 'primary',
+	size: ''
 }
 
 export default Button;

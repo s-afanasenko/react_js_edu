@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<JSONRenderer /> should match snapshot with object prop 1`] = `
+<div>
+  <pre
+    class="card bg-primary"
+  >
+    <div
+      class="card-body"
+    >
+      {
+  "key01": "value01",
+  "key02": {
+    "nestedKey01": 123
+  },
+  "key03": [
+    1,
+    "string",
+    {
+      "key": true
+    }
+  ]
+}
+    </div>
+  </pre>
+</div>
+`;
+
+exports[`<JSONRenderer /> should match snapshot with string prop 1`] = `
+<div>
+  <pre
+    class="card bg-primary"
+  >
+    <div
+      class="card-body"
+    >
+      {"key01":"value01","key02":{"nestedKey01":123},"key03":[1,"string",{"key":true}]}
+    </div>
+  </pre>
+</div>
+`;

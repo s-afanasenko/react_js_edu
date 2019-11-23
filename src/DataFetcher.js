@@ -59,7 +59,8 @@ function DataFetcher () {
 					placeholder="Get More"
 					type="text"
 					defaultValue={pokemonName}
-					onChange={handleChange} />
+					onChange={handleChange}
+					data-test-id="name-input" />
 
 				<Button
 					disabled={isLoading}
@@ -69,7 +70,7 @@ function DataFetcher () {
 					disabled={!isLoading} 
 					variant='danger'
 					clickHundler={cancelHandler} 
-					ref={cancelButton}>Cacel</Button>
+					ref={cancelButton}>Cancel</Button>
 			</ActionsToolbar>
 
 			{item && (

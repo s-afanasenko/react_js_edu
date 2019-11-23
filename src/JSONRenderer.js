@@ -26,6 +26,10 @@ class JSONRenderer extends React.Component {
 	}
 }
 
+JSONRenderer.defaultProps = {
+	theme: 'primary'
+}
+
 function mapStateToProps(state) {
 	return {
 		theme: state.theme.theme

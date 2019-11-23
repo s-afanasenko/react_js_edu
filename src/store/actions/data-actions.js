@@ -1,20 +1,20 @@
 import { dataActionsConstants } from '../constants/';
 import PokemonService from '../../service-pokemon';
 
-function fetchStarted() {
+export function fetchStarted() {
 	return {
 		type: dataActionsConstants.FETCH_STARTED
 	}
 };
 
-function fetchSucceeded(item) {
+export function fetchSucceeded(item) {
 	return {
 		type: dataActionsConstants.FETCH_SUCCEEDED,
 		payload: item
 	}
 };
 
-function fetchFaild(error) {
+export function fetchFaild(error) {
 	return {
 		type: dataActionsConstants.FETCH_FAILD,
 		payload: error

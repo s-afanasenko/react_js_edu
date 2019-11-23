@@ -1,4 +1,5 @@
 import axios, { CancelToken } from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 
 let cancelCall;
 
@@ -10,6 +11,11 @@ function getPokemonByName(pokemonName) {
 	if(!pokemonName) {
 		return Promise.reject(noNameMessage);
 	}
+
+	let mock = new MockAdapter(axios);
+
+	mock.onGet('pokemon/some-name/').reply(200, { name: 'some-name' });
+	mock.onGet('pokemon/some-other-name/').reply(404);
 
 	return axios.get(`pokemon/${pokemonName}/`, {
 		cancelToken: new CancelToken(c => {
