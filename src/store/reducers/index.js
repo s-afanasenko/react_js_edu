@@ -1,2 +1,2 @@
-export * from './theme-reducer';
-export * from './data-reducer';
+export * from "./theme-reducer";
+export * from "./data-reducer";

@@ -1,13 +1,13 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import DataFetcher from './DataFetcher';
-import AppWrapper from './AppWrapper';
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import DataFetcher from "./DataFetcher";
+import AppWrapper from "./AppWrapper";
 
-function App() {
+function App () {
     return (
-		<AppWrapper>
-    		<DataFetcher />
-    	</AppWrapper>
+        <AppWrapper>
+            <DataFetcher />
+        </AppWrapper>
     );
 }
 

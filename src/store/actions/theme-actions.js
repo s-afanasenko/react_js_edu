@@ -1,12 +1,12 @@
-import { themeActionsConstants } from '../constants/';
+import { themeActionsConstants } from "../constants/";
 
 export const themeActions = {
-	themeChanged	
-}
+    themeChanged
+};
 
-export function themeChanged(theme) {
-	return {
-		type: themeActionsConstants.THEME_CHANGED,
-		payload: theme
-	}
+export function themeChanged (theme) {
+    return {
+        type: themeActionsConstants.THEME_CHANGED,
+        payload: theme
+    };
 }
